@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to lmthing.chat
 
 on:
   repository_dispatch:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -19,20 +19,21 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout monorepo
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           repository: lmthing/lmthing
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.17.1
+      - name: Set up pnpm via Corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.17.1 --activate
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
@@ -61,6 +62,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy to lmthing.chat
         id: deployment
         uses: actions/deploy-pages@v4
